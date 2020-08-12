@@ -8,8 +8,16 @@ class CreateTransactionService {
     this.transactionsRepository = transactionsRepository;
   }
 
-  public execute(): Transaction {
-    // TODO
+  public execute({title, type, value}:Omit<Transaction, 'id'>): Transaction {
+    const transaction = new Transaction({title, type, value});
+    const balance = this.transactionsRepository.getBalance();
+    if(transaction.type === 'outcome' && value > balance.total){
+      throw Error('It is not possible to create a outcome greater then total balance.');
+    }
+
+    const savedTransaction = this.transactionsRepository.create(transaction);
+    
+    return savedTransaction;
   }
 }
 
